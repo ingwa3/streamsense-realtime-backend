@@ -1,3 +1,1 @@
 https://github.com/ingwa3/streamsense-realtime-backend
-
-Vor der Abgabe durch den tatsächlichen Repository-Link ersetzen.
