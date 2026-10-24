@@ -1,0 +1,111 @@
+digraph StreamSense {
+  graph [
+    rankdir=TB,
+    newrank=true,
+    bgcolor="white",
+    pad="0.28",
+    nodesep="0.40",
+    ranksep="0.58",
+    splines=ortho,
+    fontname="Arial",
+    fontsize=20,
+    labelloc="t",
+    label="StreamSense – Near-Real-Time-Datenarchitektur"
+  ];
+  node [
+    shape=box,
+    style="rounded,filled",
+    fontname="Arial",
+    fontsize=11,
+    color="#334155",
+    penwidth=1.4,
+    margin="0.17,0.11",
+    width=2.20,
+    height=1.05
+  ];
+  edge [
+    color="#475569",
+    penwidth=1.6,
+    arrowsize=0.85,
+    fontname="Arial",
+    fontsize=9
+  ];
+
+  simulator [
+    fillcolor="#E0F2FE",
+    label=<<B>1 · Sensor-Simulator</B><BR/><FONT POINT-SIZE="9">kontinuierliche Events<BR/>Zeitstempel · Late-Data-Anteil<BR/>1-Million-Lastlauf</FONT>>
+  ];
+  kafka [
+    fillcolor="#FEF3C7",
+    label=<<B>2 · Apache Kafka</B><BR/><FONT POINT-SIZE="9">sensor-readings.v1<BR/>6 Partitionen · Offsets<BR/>Raum-ID als Schlüssel</FONT>>
+  ];
+  persister [
+    fillcolor="#EDE9FE",
+    label=<<B>3 · Validator / Persister</B><BR/><FONT POINT-SIZE="9">JSON-Schema + Pydantic<BR/>At least once · Idempotenz<BR/>Writer-Rolle</FONT>>
+  ];
+  postgres [
+    shape=cylinder,
+    fillcolor="#DCFCE7",
+    label=<<B>4 · PostgreSQL</B><BR/><FONT POINT-SIZE="9">Rohdaten · Rejections<BR/>Aggregate · Alarme<BR/>gemeinsamer lokaler Store</FONT>>
+  ];
+  api [
+    fillcolor="#CCFBF1",
+    label=<<B>6 · FastAPI</B><BR/><FONT POINT-SIZE="9">Kennzahlen · Historien<BR/>Warnungen · Datenqualität<BR/>Read-only-Rolle + API-Key</FONT>>
+  ];
+  reporting [
+    fillcolor="#F8FAFC",
+    label=<<B>7 · Reporting</B><BR/><FONT POINT-SIZE="9">Dashboard / Frontend<BR/><I>nicht Teil des Projekts</I></FONT>>
+  ];
+
+  { rank=same; simulator; kafka; persister; postgres; api; reporting; }
+  simulator -> kafka [label="kontinuierlich"];
+  kafka -> persister;
+  persister -> postgres;
+  postgres -> api;
+  api -> reporting;
+
+  dlq [
+    fillcolor="#FEE2E2",
+    width=2.45,
+    label=<<B>Dead-Letter-Topic</B><BR/><FONT POINT-SIZE="9">Fehlergrund + Herkunft<BR/>deterministischer Schlüssel</FONT>>
+  ];
+  aggregator [
+    fillcolor="#F3E8FF",
+    width=2.85,
+    label=<<B>5 · Micro-Batch-Aggregator</B><BR/><FONT POINT-SIZE="9">alle 5 Sekunden<BR/>1-Min.-Tumbling / 5-Min.-Sliding<BR/>Watermark + Lookback</FONT>>
+  ];
+  backfill [
+    fillcolor="#FAE8FF",
+    width=2.45,
+    label=<<B>Batch-Backfill</B><BR/><FONT POINT-SIZE="9">gleiche Aggregationslogik<BR/>historische Zeiträume</FONT>>
+  ];
+  prometheus [
+    fillcolor="#FFE4E6",
+    width=2.45,
+    label=<<B>Prometheus</B><BR/><FONT POINT-SIZE="9">Durchsatz · Fehler · Lag<BR/>Laufzeiten · Checkpoints</FONT>>
+  ];
+
+  { rank=same; dlq; aggregator; backfill; prometheus; }
+  persister -> dlq [color="#B91C1C", fontcolor="#B91C1C"];
+  postgres -> aggregator [dir=both, label="5-Sek.-Intervall"];
+  backfill -> postgres [dir=both];
+
+  prometheus -> simulator [style=dashed, arrowhead=none, color="#E11D48", constraint=false];
+  prometheus -> persister [style=dashed, arrowhead=none, color="#E11D48", constraint=false];
+  prometheus -> aggregator [style=dashed, arrowhead=none, color="#E11D48", constraint=false];
+  prometheus -> api [style=dashed, arrowhead=none, color="#E11D48", constraint=false];
+
+  governance [
+    shape=box,
+    width=12.6,
+    height=0.78,
+    style="rounded,filled,dashed",
+    color="#64748B",
+    fillcolor="#F8FAFC",
+    label=<<B>Querschnitt:</B> Docker Compose / IaC · getrennte DB-Rollen · Schema-Versionierung · UTC und Einheiten · Retention · Logs · Tests · CI · dokumentierte Grenzen>
+  ];
+  dlq -> governance [style=invis];
+  aggregator -> governance [style=invis];
+  backfill -> governance [style=invis];
+  prometheus -> governance [style=invis];
+}

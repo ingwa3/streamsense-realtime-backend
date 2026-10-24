@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/streamsense/schemas/sensor-reading-v1.json",
+  "title": "StreamSense SensorReading v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event_id",
+    "schema_version",
+    "event_time",
+    "emitted_at",
+    "device_id",
+    "room_id",
+    "sequence_no",
+    "temperature_c",
+    "humidity_pct",
+    "co2_ppm",
+    "battery_pct",
+    "status"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "event_time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "emitted_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "device_id": {
+      "type": "string",
+      "pattern": "^sensor-[0-9]{4}$"
+    },
+    "room_id": {
+      "type": "string",
+      "pattern": "^room-[0-9]{3}$"
+    },
+    "sequence_no": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "temperature_c": {
+      "type": "number",
+      "minimum": -40,
+      "maximum": 80
+    },
+    "humidity_pct": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "co2_ppm": {
+      "type": "integer",
+      "minimum": 250,
+      "maximum": 10000
+    },
+    "battery_pct": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "ok",
+        "maintenance",
+        "calibration"
+      ]
+    }
+  }
+}

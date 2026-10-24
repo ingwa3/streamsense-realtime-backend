@@ -1,0 +1,21 @@
+global:
+  scrape_interval: 10s
+  evaluation_interval: 10s
+
+scrape_configs:
+  - job_name: streamsense-producer
+    static_configs:
+      - targets: ["producer:9101"]
+
+  - job_name: streamsense-persister
+    static_configs:
+      - targets: ["persister:9102"]
+
+  - job_name: streamsense-aggregator
+    static_configs:
+      - targets: ["aggregator:9103"]
+
+  - job_name: streamsense-api
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["api:8000"]

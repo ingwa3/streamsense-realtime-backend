@@ -1,0 +1,5 @@
+Metadata-Version: 2.4
+Name: streamsense-realtime-backend
+Version: 2.0.0
+Summary: Reproducible near-real-time backend for simulated indoor-air sensor data
+Requires-Python: >=3.12

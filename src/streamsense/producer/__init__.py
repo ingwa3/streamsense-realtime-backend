@@ -1,0 +1,1 @@
+"""Synthetic sensor event producer."""
