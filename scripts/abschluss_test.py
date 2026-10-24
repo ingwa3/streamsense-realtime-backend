@@ -309,7 +309,7 @@ def main() -> int:
             timeout=1200,
         )
 
-        api_key = env.get("REPORTING_API_KEY", "CHANGE_ME_REPORTING_API_KEY")
+       api_key = env["REPORTING_API_KEY"]
         payload["api_health_before_load"] = wait_for_api(240, api_key)
         baseline = sql_int("SELECT count(*) FROM sensor_readings;", env)
         payload["baseline_events"] = baseline
