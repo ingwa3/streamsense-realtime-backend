@@ -22,7 +22,7 @@ def load_api_key() -> str:
                     return line.split("=", 1)[1].strip()
     except FileNotFoundError:
         pass
-    return "CHANGE_ME_REPORTING_API_KEY"
+    raise RuntimeError("REPORTING_API_KEY fehlt. Bitte Umgebungsvariable oder lokale .env konfigurieren.")
 
 
 API_KEY = load_api_key()
